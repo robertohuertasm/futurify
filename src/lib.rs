@@ -6,7 +6,7 @@
 //!
 //! A simple `actix-web` server serving async endpoints:
 //!
-//! ```no_run
+//! ```rust,no_run
 //! use actix_web::{web, App, Error, HttpResponse, HttpServer, Responder};
 //! use futures::{Async, Future, Poll};
 //! use std::time::Duration;
@@ -15,7 +15,7 @@
 //!    futures::future::ok("Hello world")
 //! }
 //!
-//! // this function will block the thread.
+//! // this function will block the executor's thread.
 //! fn index_async_blocking() -> impl Future<Item = impl Responder, Error = Error> {
 //!    futures::lazy(|| {
 //!        std::thread::sleep(Duration::from_secs(5));
@@ -23,7 +23,7 @@
 //!    })
 //! }
 //!
-//! // this function won't block the thread.
+//! // this function won't block the executor's thread.
 //! fn index_async_non_blocking() -> impl Future<Item = impl Responder, Error = Error> {
 //!    futurify::wrap(|| {
 //!       std::thread::sleep(Duration::from_secs(5));

@@ -21,3 +21,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 futures = "0.1"
+
+[dev-dependencies]
+actix-web = "1.0"
+futures = "0.1"
