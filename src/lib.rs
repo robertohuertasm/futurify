@@ -54,10 +54,10 @@ use std::thread;
 /// in a separate thread.
 ///
 /// It uses `std::thread::spawn` and `mpsc::channel` under the hood.
-pub struct Futurified<T: Send + 'static, E: Error> {
+pub struct Futurified<T: Send + 'static, F: FnOnce() -> T + Send, E: Error> {
     tx: Sender<T>,
     rx: Receiver<T>,
-    wrapped: fn() -> T,
+    wrapped: Option<F>,
     is_running: bool,
     error: std::marker::PhantomData<E>,
 }
@@ -65,12 +65,14 @@ pub struct Futurified<T: Send + 'static, E: Error> {
 /// It will be executed once the returning Future is polled.
 ///
 /// The Future will return whatever the closure returns.
-pub fn wrap<T: Send + 'static, E: Error>(wrapped: fn() -> T) -> Futurified<T, E> {
+pub fn wrap<T: Send + 'static, F: FnOnce() -> T + Send + 'static, E: Error>(
+    wrapped: F,
+) -> Futurified<T, F, E> {
     let (tx, rx) = channel();
     Futurified {
         tx,
         rx,
-        wrapped,
+        wrapped: Some(wrapped),
         is_running: false,
         error: std::marker::PhantomData,
     }
@@ -80,17 +82,19 @@ pub fn wrap<T: Send + 'static, E: Error>(wrapped: fn() -> T) -> Futurified<T, E>
 /// future is never polled.
 ///
 /// See [`wrap`] for more details.
-pub fn wrap_eager<T: Send + 'static, E: Error>(wrapped: fn() -> T) -> Futurified<T, E> {
+pub fn wrap_eager<T: Send + 'static, F: FnOnce() -> T + Send + 'static, E: Error>(
+    wrapped: F,
+) -> Futurified<T, F, E> {
     let mut this = wrap(wrapped);
     this.run();
     this
 }
 
-impl<T: Send + 'static, E: Error> Futurified<T, E> {
+impl<T: Send + 'static, F: FnOnce() -> T + Send + 'static, E: Error> Futurified<T, F, E> {
     fn run(&mut self) {
         self.is_running = true;
         let tx = self.tx.clone();
-        let sfn = self.wrapped;
+        let sfn = self.wrapped.take().unwrap();
         thread::spawn(move || {
             let result = sfn();
             if let Err(e) = tx.send(result) {
@@ -100,7 +104,9 @@ impl<T: Send + 'static, E: Error> Futurified<T, E> {
     }
 }
 
-impl<T: Send + 'static, E: Error> Future for Futurified<T, E> {
+impl<T: Send + 'static, F: FnOnce() -> T + Send + 'static, E: Error> Future
+    for Futurified<T, F, E>
+{
     type Item = T;
     type Error = E;
 
