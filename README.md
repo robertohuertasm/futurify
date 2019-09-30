@@ -1,6 +1,8 @@
 # Futurify
 
-Convert your sync functions into non-thread blocking futures.
+[![ActionsStatus](https://github.com/robertohuertasm/futurify/workflows/Build/badge.svg)](https://github.com/robertohuertasm/futurify/actions) [![Crates.io](https://img.shields.io/crates/v/futurify.svg)](https://crates.io/crates/futurify)
+
+Convert your sync functions into non-blocking thread futures.
 
 # When to use it
 

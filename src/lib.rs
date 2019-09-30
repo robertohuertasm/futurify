@@ -1,3 +1,50 @@
+//! A library to help you convert your sync functions into non-blocking thread futures.
+//!
+//! Futurify uses `futures 0.1` for the moment.
+//!
+//! # Examples
+//!
+//! A simple `actix-web` server serving async endpoints:
+//!
+//! ```no_run
+//! use actix_web::{web, App, Error, HttpResponse, HttpServer, Responder};
+//! use futures::{Async, Future, Poll};
+//! use std::time::Duration;
+//!
+//! fn index_async() -> impl Future<Item = impl Responder, Error = Error> {
+//!    futures::future::ok("Hello world")
+//! }
+//!
+//! // this function will block the thread.
+//! fn index_async_blocking() -> impl Future<Item = impl Responder, Error = Error> {
+//!    futures::lazy(|| {
+//!        std::thread::sleep(Duration::from_secs(5));
+//!        futures::future::ok("Hello blocking world")
+//!    })
+//! }
+//!
+//! // this function won't block the thread.
+//! fn index_async_non_blocking() -> impl Future<Item = impl Responder, Error = Error> {
+//!    futurify::wrap(|| {
+//!       std::thread::sleep(Duration::from_secs(5));
+//!        "Hello blocking world"
+//!    })
+//! }
+//!
+//! fn main() -> std::io::Result<()> {
+//!    HttpServer::new(|| {
+//!        App::new()
+//!            .route("/", web::get().to_async(index_async))
+//!            .route("/blocking", web::get().to_async(index_async_blocking))
+//!            .route("/non-blocking", web::get().to_async(index_async_non_blocking))
+//!    })
+//!    .workers(1)
+//!    .bind("localhost:8080")?
+//!    .run()
+//! }
+//! ```
+//! By using `futurify` you'll be able to run the closure in a new thread and get the returned value in a future.
+
 use futures::{Async, Future};
 use std::error::Error;
 use std::sync::mpsc::{channel, Receiver, Sender};

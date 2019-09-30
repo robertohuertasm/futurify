@@ -1,16 +1,23 @@
 [package]
 name = "futurify"
-description = "Convert your sync functions into non-thread blocking futures"
+description = "Convert your sync functions into non-blocking thread futures"
 license = "MIT"
 repository ="https://github.com/robertohuertasm/futurify"
 readme = "README.md"
 keywords = ["futures", "spawn", "threading", "background", "non-blocking"]
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Roberto Huertas <roberto.huertas@outlook.com>"]
 edition = "2018"
 categories = ["asynchronous"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+exclude = [
+  ".github/*",
+  ".pre-commit-config.yaml"
+]
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 futures = "0.1"
