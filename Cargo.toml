@@ -5,7 +5,7 @@ license = "MIT"
 repository ="https://github.com/robertohuertasm/futurify"
 readme = "README.md"
 keywords = ["futures", "spawn", "threading", "background", "non-blocking"]
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Roberto Huertas <roberto.huertas@outlook.com>"]
 edition = "2018"
 categories = ["asynchronous"]
@@ -19,9 +19,15 @@ exclude = [
 [badges]
 maintenance = { status = "actively-developed" }
 
+[features]
+default = ["futures_03"]
+futures_01 = ["futures01"]
+futures_03 = ["futures03"]
+
 [dependencies]
-futures = "0.1"
+futures01 = { package = "futures", version = "0.1", optional = true, default-features = false }
+futures03 = { package = "futures", version = "0.3", optional = true }
 
 [dev-dependencies]
-actix-web = "1.0"
-futures = "0.1"
+actix-web-1 = { package = "actix-web", version = "1.0"}
+actix-web-2 = { package = "actix-web", version = "2.0.0-alpha.1"}
